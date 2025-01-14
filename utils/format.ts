@@ -27,7 +27,7 @@ export const formatMenu = (menu: ScrapedMenu): Prisma.MenuCreateInput => {
     // Handle relationships
     cuisines: {
       connectOrCreate: menu.cuisines.map((cuisine) => ({
-        where: { id: cuisine.id },
+        where: { name: cuisine.name },
         create: { name: cuisine.name },
       })),
     },

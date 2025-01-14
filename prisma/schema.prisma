@@ -42,7 +42,7 @@ model Menu {
 
 model Cuisine {
   id   Int    @id @default(autoincrement())
-  name String
+  name String @unique
 
   menus Menu[] @relation("MenuCuisines")
 

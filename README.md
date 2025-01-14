@@ -2,18 +2,15 @@
 
 Docs: https://docs.google.com/document/d/10k-i1B1RUO1EK0MkBN-zW-jj3Y6-5Ql5Oyj-jfqoxqM/edit?tab=t.0
 
-Hello, for your ease I've written down where the answers to each of the questions is:
-
+Hello, thanks for taking the time to look through this. To make it easier for you, I've written down where the answers to each of the questions is:
 
 ### Part 1: Design / Reverse engineering
 
 1. Check `prisma/schema.prisma` for the schema.
-2. Check `utils/scrape.ts` for the scraping logic, you can run it by running `npm run scrape` (Note: you'll need to have deno installed and the env variables set)
+2. Check `utils/scrape.ts` for the scraping logic. I've added an API to make it easier to run your side, you just need to use Postman on the url `http://localhost:3000/scraper`
 3. Bonus: We could use a cache store like Redis, which would allow use to cache the most common queries, and speed up the app.
 
 ### Part 2: Backend
-
-
 
 ## Getting Started
 

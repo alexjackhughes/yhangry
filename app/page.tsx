@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Menu } from "@prisma/client";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface CuisineFilter {
   id: number;
@@ -24,8 +25,15 @@ interface MenuResponse {
 }
 
 export default function Home() {
-  const [selectedCuisine, setSelectedCuisine] = useState<string>("");
-  const [guestCount, setGuestCount] = useState<number>(1);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const [selectedCuisine, setSelectedCuisine] = useState<string>(
+    searchParams.get("cuisine")?.toLowerCase() || ""
+  );
+  const [guestCount, setGuestCount] = useState<number>(
+    parseInt(searchParams.get("guests") || "1")
+  );
   const [menus, setMenus] = useState<
     (MenuWithCuisines & { uniqueKey: string })[]
   >([]);
@@ -33,6 +41,18 @@ export default function Home() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+
+  const updateURL = useCallback(
+    (cuisine: string, guests: number) => {
+      const params = new URLSearchParams();
+      if (cuisine) params.set("cuisine", cuisine);
+      if (guests > 1) params.set("guests", guests.toString());
+
+      const newURL = params.toString() ? `?${params.toString()}` : "/";
+      router.push(newURL);
+    },
+    [router]
+  );
 
   const fetchMenus = useCallback(
     async (reset = false) => {
@@ -73,18 +93,27 @@ export default function Home() {
     fetchMenus(true);
   }, [selectedCuisine]);
 
+  useEffect(() => {
+    updateURL(selectedCuisine, guestCount);
+  }, [selectedCuisine, guestCount, updateURL]);
+
   const calculateTotalPrice = (pricePerPerson: number, minSpend: number) => {
     const total = pricePerPerson * guestCount;
     return Math.max(total, minSpend);
   };
 
   const handleCuisineSelect = (cuisineName: string) => {
-    if (selectedCuisine === cuisineName.toLowerCase()) {
-      setSelectedCuisine("");
-    } else {
-      setSelectedCuisine(cuisineName.toLowerCase());
-    }
+    const newCuisine =
+      selectedCuisine === cuisineName.toLowerCase()
+        ? ""
+        : cuisineName.toLowerCase();
+    setSelectedCuisine(newCuisine);
     setPage(1);
+  };
+
+  const handleGuestCountChange = (value: number) => {
+    const newCount = Math.max(1, value);
+    setGuestCount(newCount);
   };
 
   return (
@@ -99,7 +128,7 @@ export default function Home() {
           min="1"
           value={guestCount}
           onChange={(e) =>
-            setGuestCount(Math.max(1, parseInt(e.target.value) || 1))
+            handleGuestCountChange(parseInt(e.target.value) || 1)
           }
           className="border rounded px-3 py-2 w-full max-w-xs"
         />

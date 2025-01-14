@@ -20,6 +20,11 @@ Hello, thanks for taking the time to look through this. To make it easier for yo
    - We could use some kind of rate-limiting middleware, to prevent excessive requests.
    - ON a live app, we could set-up trusted domains, so that we only accept requests from our (or trusted) services.
 
+### Part 3: Frontend
+
+1. All of the page is in `app/page.tsx`, and the components are in `components/`.
+2. Rather than use Redux, I've used the url to pass the state around.
+
 ## Getting Started
 
 Firstly, you'll want to copy over the `.env.example` into `.env` and fill it with your own values.

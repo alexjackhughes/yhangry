@@ -63,8 +63,8 @@ export default function Home() {
         setIsLoading(true);
         const currentPage = reset ? 1 : page;
         const url = selectedCuisine
-          ? `/set-menus/${selectedCuisine}?page=${currentPage}`
-          : `/set-menus/all?page=${currentPage}`;
+          ? `/set-menus/${selectedCuisine}?page=${currentPage}&guests=${guestCount}`
+          : `/set-menus/all?page=${currentPage}&guests=${guestCount}`;
 
         const response = await fetch(url);
         const data: MenuResponse = await response.json();
@@ -89,7 +89,7 @@ export default function Home() {
         setIsLoading(false);
       }
     },
-    [selectedCuisine, page]
+    [selectedCuisine, page, guestCount]
   );
 
   useEffect(() => {

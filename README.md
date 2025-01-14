@@ -12,6 +12,14 @@ Hello, thanks for taking the time to look through this. To make it easier for yo
 
 ### Part 2: Backend
 
+1. Check `app/set-menus/[cuisineSlug]/route.ts` for the logic, or call it directly from `http://localhost:3000/set-menus/indian`
+2. Bonus:
+   - We could use a cache store like Redis, which would allow use to cache the most common queries, and speed up the app.
+   - We could use something like OAuth to authenticate every request to the API, so that it can't be accessed by everyone.
+   - We could use a service like Cloudflare, so that we are protected from DDoS attacks.
+   - We could use some kind of rate-limiting middleware, to prevent excessive requests.
+   - ON a live app, we could set-up trusted domains, so that we only accept requests from our (or trusted) services.
+
 ## Getting Started
 
 Firstly, you'll want to copy over the `.env.example` into `.env` and fill it with your own values.

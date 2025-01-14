@@ -1,16 +1,46 @@
 import prisma from "@/prisma/db";
 import { NextRequest, NextResponse } from "next/server";
 
+const MAX_PAGE_SIZE = 50;
+const MIN_PAGE = 1;
+
 export async function GET(
   req: NextRequest,
   { params }: { params: { cuisineSlug: string } }
 ) {
   const { searchParams } = new URL(req.url);
 
-  // Parse query parameters with default values
-  const cuisineSlug = params.cuisineSlug;
-  const page = parseInt(searchParams.get("page") || "1");
-  const limit = parseInt(searchParams.get("limit") || "10");
+  // Parse and sanitize query parameters with default values
+  const cuisineSlug = params.cuisineSlug?.toLowerCase().trim();
+  if (!cuisineSlug || cuisineSlug.length > 50) {
+    return NextResponse.json(
+      { status: "error", message: "Invalid cuisine parameter" },
+      { status: 400 }
+    );
+  }
+
+  // Sanitize and validate pagination parameters
+  const rawPage = searchParams.get("page");
+  const rawLimit = searchParams.get("limit");
+
+  const page = Math.max(MIN_PAGE, parseInt(rawPage || "1"));
+  if (isNaN(page)) {
+    return NextResponse.json(
+      { status: "error", message: "Invalid page parameter" },
+      { status: 400 }
+    );
+  }
+
+  const limit = Math.min(
+    MAX_PAGE_SIZE,
+    Math.max(1, parseInt(rawLimit || "10"))
+  );
+  if (isNaN(limit)) {
+    return NextResponse.json(
+      { status: "error", message: "Invalid limit parameter" },
+      { status: 400 }
+    );
+  }
 
   try {
     // Fetch filtered menus

@@ -1,4 +1,4 @@
-# Hangry
+# yhangry
 
 Hello, thanks for taking the time to look through this. To make it easier for you, I've written down where the answers to each of the questions is:
 
@@ -6,7 +6,7 @@ Hello, thanks for taking the time to look through this. To make it easier for yo
 
 1. Check `prisma/schema.prisma` for the schema.
 2. Check `utils/scrape.ts` for the scraping logic. I've added an API to make it easier to run your side, you just need to use Postman on the url `http://localhost:3000/scraper`
-3. Bonus: We could use a cache store like Redis, which would allow use to cache the most common queries, and speed up the app.
+3. Bonus: We could use a cache store like Redis, which would allow us to cache the most common queries, and speed up the app.
 
 ### Part 2: Backend
 

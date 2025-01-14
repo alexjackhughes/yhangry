@@ -1,22 +1,33 @@
 "use client";
 
+import { useRouter, useSearchParams } from "next/navigation";
+
 interface GuestCountProps {
-  guestCount: number;
-  onGuestCountChange: (value: number) => void;
+  initialGuestCount: number;
 }
 
-export default function GuestCount({
-  guestCount,
-  onGuestCountChange,
-}: GuestCountProps) {
+export default function GuestCount({ initialGuestCount }: GuestCountProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const updateGuestCount = (newCount: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (newCount > 1) {
+      params.set("guests", newCount.toString());
+    } else {
+      params.delete("guests");
+    }
+    router.push(`?${params.toString()}`);
+  };
+
   const increment = () => {
-    const newCount = Math.min(99, guestCount + 1);
-    onGuestCountChange(newCount);
+    const newCount = Math.min(99, initialGuestCount + 1);
+    updateGuestCount(newCount);
   };
 
   const decrement = () => {
-    const newCount = Math.max(1, guestCount - 1);
-    onGuestCountChange(newCount);
+    const newCount = Math.max(1, initialGuestCount - 1);
+    updateGuestCount(newCount);
   };
 
   return (
@@ -27,15 +38,17 @@ export default function GuestCount({
           <button
             className="h-8 w-8 rounded-full hover:bg-gray-200"
             onClick={decrement}
-            disabled={guestCount <= 1}
+            disabled={initialGuestCount <= 1}
           >
             <span className="sr-only">Decrease guests</span>-
           </button>
-          <div className="w-10 text-center tabular-nums">{guestCount}</div>
+          <div className="w-10 text-center tabular-nums">
+            {initialGuestCount}
+          </div>
           <button
             className="h-8 w-8 rounded-full hover:bg-gray-200"
             onClick={increment}
-            disabled={guestCount >= 99}
+            disabled={initialGuestCount >= 99}
           >
             <span className="sr-only">Increase guests</span>+
           </button>

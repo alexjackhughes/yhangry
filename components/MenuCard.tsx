@@ -4,7 +4,6 @@ import { Menu } from "@prisma/client";
 
 interface MenuWithCuisines extends Menu {
   cuisines: { id: number; name: string }[];
-  uniqueKey: string;
 }
 
 interface MenuCardProps {

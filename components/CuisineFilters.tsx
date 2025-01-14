@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter, useSearchParams } from "next/navigation";
+
 interface CuisineFilter {
   id: number;
   name: string;
@@ -9,21 +11,38 @@ interface CuisineFilter {
 interface CuisineFiltersProps {
   cuisines: CuisineFilter[];
   selectedCuisine: string;
-  onCuisineSelect: (cuisineName: string) => void;
 }
 
 export default function CuisineFilters({
   cuisines,
   selectedCuisine,
-  onCuisineSelect,
 }: CuisineFiltersProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const handleCuisineSelect = (cuisineName: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    const newCuisine =
+      selectedCuisine === cuisineName.toLowerCase()
+        ? ""
+        : cuisineName.toLowerCase();
+
+    if (newCuisine) {
+      params.set("cuisine", newCuisine);
+    } else {
+      params.delete("cuisine");
+    }
+
+    router.push(`?${params.toString()}`);
+  };
+
   return (
     <div className="mb-8">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Cuisines</h2>
         {selectedCuisine && (
           <button
-            onClick={() => onCuisineSelect(selectedCuisine)}
+            onClick={() => handleCuisineSelect(selectedCuisine)}
             className="text-sm text-slate-900"
           >
             Clear Filter
@@ -34,7 +53,7 @@ export default function CuisineFilters({
         {cuisines.map((cuisine) => (
           <button
             key={cuisine.id}
-            onClick={() => onCuisineSelect(cuisine.name)}
+            onClick={() => handleCuisineSelect(cuisine.name)}
             className={`px-4 py-2 rounded-full ${
               selectedCuisine === cuisine.name.toLowerCase()
                 ? "bg-slate-900 text-white"

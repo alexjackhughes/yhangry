@@ -1,11 +1,9 @@
-"use client";
-
-import { useCallback, useEffect, useState } from "react";
+import { Suspense } from "react";
 import { Menu } from "@prisma/client";
-import { useRouter, useSearchParams } from "next/navigation";
 import GuestCount from "../components/GuestCount";
 import CuisineFilters from "../components/CuisineFilters";
 import MenuGrid from "../components/MenuGrid";
+import LoadingSkeleton from "../components/LoadingSkeleton";
 
 interface CuisineFilter {
   id: number;
@@ -27,104 +25,44 @@ interface MenuResponse {
   };
 }
 
-export default function Home() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: { cuisine?: string; guests?: string };
+}) {
+  const selectedCuisine = searchParams.cuisine?.toLowerCase() || "";
+  const guestCount = parseInt(searchParams.guests || "1");
 
-  const [selectedCuisine, setSelectedCuisine] = useState<string>(
-    searchParams.get("cuisine")?.toLowerCase() || ""
-  );
-  const [guestCount, setGuestCount] = useState<number>(
-    parseInt(searchParams.get("guests") || "1")
-  );
-  const [menus, setMenus] = useState<
-    (MenuWithCuisines & { uniqueKey: string })[]
-  >([]);
-  const [cuisines, setCuisines] = useState<CuisineFilter[]>([]);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
+  // Construct the URL using search params with absolute path
+  const url = selectedCuisine
+    ? `${process.env.NEXT_PUBLIC_API_URL}/set-menus/${selectedCuisine}?page=1&guests=${guestCount}`
+    : `${process.env.NEXT_PUBLIC_API_URL}/set-menus/all?page=1&guests=${guestCount}`;
 
-  const updateURL = useCallback(
-    (cuisine: string, guests: number) => {
-      const params = new URLSearchParams();
-      if (cuisine) params.set("cuisine", cuisine);
-      if (guests > 1) params.set("guests", guests.toString());
+  const response = await fetch(url, {
+    // Ensure we're getting fresh data
+    cache: "no-store",
+  });
 
-      const newURL = params.toString() ? `?${params.toString()}` : "/";
-      router.push(newURL);
-    },
-    [router]
-  );
+  if (!response.ok) {
+    throw new Error(`Failed to fetch menus: ${response.statusText}`);
+  }
 
-  const fetchMenus = useCallback(
-    async (reset = false) => {
-      try {
-        setIsLoading(true);
-        const currentPage = reset ? 1 : page;
-        const url = selectedCuisine
-          ? `/set-menus/${selectedCuisine}?page=${currentPage}&guests=${guestCount}`
-          : `/set-menus/all?page=${currentPage}&guests=${guestCount}`;
-
-        const response = await fetch(url);
-        const data: MenuResponse = await response.json();
-
-        const menusWithKeys = data.data.map((menu) => ({
-          ...menu,
-          uniqueKey: `${menu.id}-${currentPage}-${Date.now()}`,
-        }));
-
-        setMenus((prev) =>
-          reset ? menusWithKeys : [...prev, ...menusWithKeys]
-        );
-        setCuisines(data.cuisines);
-        setHasMore(currentPage * 10 < data.meta.total);
-
-        if (!reset) {
-          setPage((prev) => prev + 1);
-        }
-      } catch (error) {
-        console.error("Error fetching menus:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [selectedCuisine, page, guestCount]
-  );
-
-  useEffect(() => {
-    fetchMenus(true);
-  }, [selectedCuisine]);
-
-  useEffect(() => {
-    updateURL(selectedCuisine, guestCount);
-  }, [selectedCuisine, guestCount, updateURL]);
-
-  const handleCuisineSelect = (cuisineName: string) => {
-    const newCuisine =
-      selectedCuisine === cuisineName.toLowerCase()
-        ? ""
-        : cuisineName.toLowerCase();
-    setSelectedCuisine(newCuisine);
-    setPage(1);
-  };
+  const initialData: MenuResponse = await response.json();
 
   return (
     <main className="container mx-auto px-4 py-8">
-      <GuestCount guestCount={guestCount} onGuestCountChange={setGuestCount} />
+      <GuestCount initialGuestCount={guestCount} />
       <CuisineFilters
-        cuisines={cuisines}
+        cuisines={initialData.cuisines}
         selectedCuisine={selectedCuisine}
-        onCuisineSelect={handleCuisineSelect}
       />
-
-      <MenuGrid
-        menus={menus}
-        guestCount={guestCount}
-        hasMore={hasMore}
-        isLoading={isLoading}
-        onLoadMore={() => fetchMenus()}
-      />
+      <Suspense fallback={<LoadingSkeleton />}>
+        <MenuGrid
+          initialData={initialData}
+          guestCount={guestCount}
+          selectedCuisine={selectedCuisine}
+        />
+      </Suspense>
     </main>
   );
 }

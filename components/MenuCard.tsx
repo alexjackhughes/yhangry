@@ -28,7 +28,11 @@ export default function MenuCard({ menu, guestCount }: MenuCardProps) {
       </div>
       <div className="p-4">
         <h3 className="font-semibold text-xl mb-1">{menu.name}</h3>
-        <p className="text-gray-600 mb-4">{menu.description}</p>
+        <p className="text-gray-600 mb-4">
+          {menu.description && menu.description.length > 50
+            ? `${menu.description.slice(0, 50)}...`
+            : menu.description || ""}
+        </p>
         <div className="flex justify-between items-center border-t border-slate-200 pt-4">
           <div>
             <p className="text-sm text-gray-500">Price per person</p>

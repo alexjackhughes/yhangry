@@ -16,12 +16,12 @@ Hello, thanks for taking the time to look through this. To make it easier for yo
    - We could use something like OAuth to authenticate every request to the API, so that it can't be accessed by everyone.
    - We could use a service like Cloudflare, so that we are protected from DDoS attacks.
    - We could use some kind of rate-limiting middleware, to prevent excessive requests.
-   - On a live app, we could set-up trusted domains, so that we only accept requests from our (or trusted) services.
+   - On a live app, we could set-up trusted domains, so that we only accept requests from our (or 3rd party trusted) services.
 
 ### Part 3: Frontend
 
-1. All of the page is in `app/page.tsx`, and the components are in `components/`.
-2. Rather than use Redux, I've used the url to pass the state around; I think this would be a better user experience as it means you could set the guests and the type of food and share with your friends etc.
+1. The whole frontend works from `app/page.tsx`, and the components are in `components/*`.
+2. Rather than use Redux, I've used the url to pass the state around; I think this would be a better user experience as it means you could set the guests and the type of food and share the url directly with friends etc. It also means we can use React Server Components to make the app faster.
 3. Bonus: In a real app, obviously we would want to make the items clickable and allow ordering as well as the sharing of individual options.
 
 ## Getting Started

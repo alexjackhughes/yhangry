@@ -33,6 +33,8 @@ export default function CuisineFilters({
       params.delete("cuisine");
     }
 
+    params.delete("page");
+
     router.push(`?${params.toString()}`);
   };
 

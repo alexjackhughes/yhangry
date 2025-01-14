@@ -6,11 +6,12 @@ const MIN_PAGE = 1;
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { cuisineSlug: string } }
+  context: { params: { cuisineSlug: string } }
 ) {
   const { searchParams } = new URL(req.url);
 
   // Parse and sanitize query parameters with default values
+  const params = await context.params;
   const cuisineSlug = params.cuisineSlug?.toLowerCase().trim();
   if (!cuisineSlug || cuisineSlug.length > 50) {
     return NextResponse.json(

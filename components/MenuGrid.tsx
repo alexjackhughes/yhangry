@@ -1,9 +1,8 @@
 "use client";
 
 import { Menu } from "@prisma/client";
-import { useCallback, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import MenuCard from "./MenuCard";
-import LoadingSkeleton from "./LoadingSkeleton";
 
 interface MenuWithCuisines extends Menu {
   cuisines: { id: number; name: string }[];
@@ -30,62 +29,36 @@ export default function MenuGrid({
   guestCount,
   selectedCuisine,
 }: MenuGridProps) {
-  const [menus, setMenus] = useState<MenuWithCuisines[]>(initialData.data);
-  const [page, setPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(page * 10 < initialData.meta.total);
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const fetchMoreMenus = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const nextPage = page + 1;
-      const baseUrl =
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
-      const url = selectedCuisine
-        ? `${baseUrl}/api/set-menus/${selectedCuisine}?page=${nextPage}&guests=${guestCount}`
-        : `${baseUrl}/api/set-menus/all?page=${nextPage}&guests=${guestCount}`;
+  const handleLoadMore = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    const nextPage = (initialData.meta.page + 1).toString();
+    params.set("page", nextPage);
+    router.push(`?${params.toString()}`, { scroll: false });
+  };
 
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch more menus: ${response.statusText}`);
-      }
-
-      const data: MenuResponse = await response.json();
-
-      setMenus((prev) => [...prev, ...data.data]);
-      setPage(nextPage);
-      setHasMore(nextPage * 10 < data.meta.total);
-    } catch (error) {
-      console.error("Error fetching more menus:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [page, selectedCuisine, guestCount]);
-
-  // Reset when filters change
-  useEffect(() => {
-    setMenus(initialData.data);
-    setPage(1);
-    setHasMore(10 < initialData.meta.total);
-  }, [initialData]);
+  const hasMore =
+    initialData.meta.page * initialData.meta.limit < initialData.meta.total;
+  const totalMenusShown = initialData.data.length;
+  const totalMenus = initialData.meta.total;
 
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {menus.map((menu) => (
+        {initialData.data.map((menu) => (
           <MenuCard key={menu.id} menu={menu} guestCount={guestCount} />
         ))}
       </div>
 
-      {isLoading && <LoadingSkeleton />}
-
-      {hasMore && !isLoading && (
+      {hasMore && (
         <div className="mt-8 text-center">
           <button
-            onClick={fetchMoreMenus}
+            onClick={handleLoadMore}
             className="border border-slate-900 text-slate-900 px-6 py-2 rounded-full"
           >
-            Show More
+            Show More ({totalMenusShown} of {totalMenus})
           </button>
         </div>
       )}

@@ -1,6 +1,8 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect, useCallback } from "react";
+import debounce from "lodash/debounce";
 
 interface GuestCountProps {
   initialGuestCount: number;
@@ -9,25 +11,34 @@ interface GuestCountProps {
 export default function GuestCount({ initialGuestCount }: GuestCountProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [guestCount, setGuestCount] = useState(initialGuestCount);
 
-  const updateGuestCount = (newCount: number) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (newCount > 1) {
-      params.set("guests", newCount.toString());
-    } else {
-      params.delete("guests");
-    }
-    router.push(`?${params.toString()}`);
-  };
+  // Debounced function to update URL
+  const debouncedUpdateURL = useCallback(
+    debounce((count: number) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (count > 1) {
+        params.set("guests", count.toString());
+      } else {
+        params.delete("guests");
+      }
+      router.push(`?${params.toString()}`);
+    }, 500),
+    [searchParams, router]
+  );
+
+  // Update URL when guest count changes
+  useEffect(() => {
+    debouncedUpdateURL(guestCount);
+    return () => debouncedUpdateURL.cancel();
+  }, [guestCount, debouncedUpdateURL]);
 
   const increment = () => {
-    const newCount = Math.min(99, initialGuestCount + 1);
-    updateGuestCount(newCount);
+    setGuestCount((prev) => Math.min(99, prev + 1));
   };
 
   const decrement = () => {
-    const newCount = Math.max(1, initialGuestCount - 1);
-    updateGuestCount(newCount);
+    setGuestCount((prev) => Math.max(1, prev - 1));
   };
 
   return (
@@ -38,17 +49,15 @@ export default function GuestCount({ initialGuestCount }: GuestCountProps) {
           <button
             className="h-8 w-8 rounded-full hover:bg-gray-200"
             onClick={decrement}
-            disabled={initialGuestCount <= 1}
+            disabled={guestCount <= 1}
           >
             <span className="sr-only">Decrease guests</span>-
           </button>
-          <div className="w-10 text-center tabular-nums">
-            {initialGuestCount}
-          </div>
+          <div className="w-10 text-center tabular-nums">{guestCount}</div>
           <button
             className="h-8 w-8 rounded-full hover:bg-gray-200"
             onClick={increment}
-            disabled={initialGuestCount >= 99}
+            disabled={guestCount >= 99}
           >
             <span className="sr-only">Increase guests</span>+
           </button>

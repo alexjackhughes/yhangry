@@ -28,26 +28,48 @@ interface MenuResponse {
 export default async function Home({
   searchParams,
 }: {
-  searchParams: { cuisine?: string; guests?: string };
+  searchParams: { cuisine?: string; guests?: string; page?: string };
 }) {
-  const selectedCuisine = searchParams.cuisine?.toLowerCase() || "";
-  const guestCount = parseInt(searchParams.guests || "1");
+  // Ensure searchParams is ready before accessing
+  const params = await Promise.resolve(searchParams);
+  const selectedCuisine = params.cuisine?.toLowerCase() || "";
+  const guestCount = parseInt(params.guests || "1");
+  const currentPage = parseInt(params.page || "1");
 
-  // Construct the URL using search params with absolute path
-  const url = selectedCuisine
-    ? `${process.env.NEXT_PUBLIC_API_URL}/set-menus/${selectedCuisine}?page=1&guests=${guestCount}`
-    : `${process.env.NEXT_PUBLIC_API_URL}/set-menus/all?page=1&guests=${guestCount}`;
+  // Fetch all pages up to the current page
+  const allData: MenuWithCuisines[] = [];
+  let cuisines: CuisineFilter[] = [];
+  let meta: MenuResponse["meta"] | null = null;
 
-  const response = await fetch(url, {
-    // Ensure we're getting fresh data
-    cache: "no-store",
-  });
+  for (let page = 1; page <= currentPage; page++) {
+    const url = selectedCuisine
+      ? `${process.env.NEXT_PUBLIC_API_URL}/set-menus/${selectedCuisine}?page=${page}&guests=${guestCount}`
+      : `${process.env.NEXT_PUBLIC_API_URL}/set-menus/all?page=${page}&guests=${guestCount}`;
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch menus: ${response.statusText}`);
+    const response = await fetch(url, {
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch menus: ${response.statusText}`);
+    }
+
+    const pageData: MenuResponse = await response.json();
+    allData.push(...pageData.data);
+
+    // Keep the latest cuisines and meta data
+    cuisines = pageData.cuisines;
+    meta = pageData.meta;
   }
 
-  const initialData: MenuResponse = await response.json();
+  const initialData: MenuResponse = {
+    data: allData,
+    cuisines,
+    meta: {
+      ...meta!,
+      page: currentPage,
+    },
+  };
 
   return (
     <main className="container mx-auto px-4 py-8">

@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // or "mysql", "sqlite", "sqlserver", "mongodb", "cockroachdb"
+  url      = env("DATABASE_URL")
+}
+
+model Menu {
+  id             Int      @id @default(autoincrement())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  name           String
+  description    String?
+  image          String
+  thumbnail      String
+  priceIncludes  String?
+  highlight      String?
+  displayText    Boolean
+  isVegan        Boolean
+  isVegetarian   Boolean
+  status         Boolean
+  isSeated       Boolean
+  isStanding     Boolean
+  isCanape       Boolean
+  isMixedDietary Boolean
+  isMealPrep     Boolean
+  isHalal        Boolean
+  isKosher       Boolean
+  available      Boolean
+  numberOfOrders Int
+  pricePerPerson Int
+  minSpend       Int
+
+  cuisines Cuisine[] @relation("MenuCuisines")
+  groups   Group[]   @relation("GroupMenu")
+
+  @@map("menus")
+}
+
+model Cuisine {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  menus Menu[] @relation("MenuCuisines")
+
+  @@map("cuisines")
+}
+
+model Group {
+  id                    Int @id @default(autoincrement())
+  dishesCount           Int
+  selectableDishesCount Int
+
+  groupItems GroupItem[]
+  menu       Menu[]      @relation("GroupMenu")
+
+  @@map("groups")
+}
+
+model GroupItem {
+  id        Int     @id @default(autoincrement())
+  name      String // e.g., Starter, Main, Side Dish, etc.
+  available Boolean
+
+  group   Group @relation(fields: [groupId], references: [id])
+  groupId Int
+
+  @@map("group_items")
+}

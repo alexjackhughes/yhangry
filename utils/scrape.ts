@@ -1,4 +1,6 @@
 import axios from "axios";
+import { ScrapedMenu } from "@/models/ScrapedModels";
+import { createMenus } from "./db";
 
 interface ApiResponse {
   data: any[];
@@ -7,8 +9,8 @@ interface ApiResponse {
   };
 }
 
-async function fetchAllData(endpoint: string): Promise<any[]> {
-  let allData: any[] = [];
+async function fetchAllData(endpoint: string): Promise<ScrapedMenu[]> {
+  let allData: ScrapedMenu[] = [];
   let nextPage: string | null = endpoint;
 
   try {
@@ -37,5 +39,9 @@ async function fetchAllData(endpoint: string): Promise<any[]> {
 (async () => {
   const endpoint = "https://staging.yhangry.com/booking/test/set-menus";
   const data = await fetchAllData(endpoint);
+
+  // Here we want to save the data to the database
+  // await createMenus(data);
+
   console.log("Fetched data:", data);
 })();

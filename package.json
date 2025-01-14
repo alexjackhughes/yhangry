@@ -7,9 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "scrape": "deno run --allow-net utils/scrape.ts"
+    "scrape": "deno run --allow-read --allow-write --allow-net --unstable-sloppy-imports --allow-env utils/scrape.ts"
   },
   "dependencies": {
+    "@prisma/client": "^6.2.1",
     "axios": "^1.7.9",
     "next": "15.1.4",
     "react": "^19.0.0",

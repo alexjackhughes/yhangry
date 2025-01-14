@@ -1,14 +1,13 @@
-import { ScrapedMenu } from "@/models/ScrapedModels";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { ScrapedMenu } from "../models/ScrapedModels";
+import prisma from "../prisma/db";
+import { formatMenus } from "./format";
 
 export const createMenus = async (menus: ScrapedMenu[]) => {
-  // This doesn't quite work, as the data schema does not quite match
+  const formattedMenus = formatMenus(menus);
 
-  for (const menu of menus) {
+  for (const formattedMenu of formattedMenus) {
     await prisma.menu.create({
-      data: menu,
+      data: formattedMenu,
     });
   }
 };

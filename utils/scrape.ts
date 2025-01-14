@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ScrapedMenu } from "@/models/ScrapedModels";
+import { ScrapedMenu } from "../models/ScrapedModels";
 import { createMenus } from "./db";
 
 interface ApiResponse {
@@ -9,7 +9,7 @@ interface ApiResponse {
   };
 }
 
-async function fetchAllData(endpoint: string): Promise<ScrapedMenu[]> {
+export async function fetchAllData(endpoint: string): Promise<ScrapedMenu[]> {
   let allData: ScrapedMenu[] = [];
   let nextPage: string | null = endpoint;
 
@@ -34,14 +34,3 @@ async function fetchAllData(endpoint: string): Promise<ScrapedMenu[]> {
 
   return allData;
 }
-
-// Usage example:
-(async () => {
-  const endpoint = "https://staging.yhangry.com/booking/test/set-menus";
-  const data = await fetchAllData(endpoint);
-
-  // Here we want to save the data to the database
-  // await createMenus(data);
-
-  console.log("Fetched data:", data);
-})();

@@ -3,6 +3,7 @@
   "packages": {
     "specifiers": {
       "npm:@eslint/eslintrc@^3": "npm:@eslint/eslintrc@3.2.0",
+      "npm:@prisma/client@^6.2.1": "npm:@prisma/client@6.2.1_prisma@6.2.1",
       "npm:@types/node@^20": "npm:@types/node@20.17.13",
       "npm:@types/react-dom@^19": "npm:@types/react-dom@19.0.3_@types+react@19.0.7",
       "npm:@types/react@^19": "npm:@types/react@19.0.7",
@@ -304,6 +305,12 @@
       "@pkgjs/parseargs@0.11.0": {
         "integrity": "sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==",
         "dependencies": {}
+      },
+      "@prisma/client@6.2.1_prisma@6.2.1": {
+        "integrity": "sha512-msKY2iRLISN8t5X0Tj7hU0UWet1u0KuxSPHWuf3IRkB4J95mCvGpyQBfQ6ufcmvKNOMQSq90O2iUmJEN2e5fiA==",
+        "dependencies": {
+          "prisma": "prisma@6.2.1"
+        }
       },
       "@prisma/debug@6.2.1": {
         "integrity": "sha512-0KItvt39CmQxWkEw6oW+RQMD6RZ43SJWgEUnzxN8VC9ixMysa7MzZCZf22LCK5DSooiLNf8vM3LHZm/I/Ni7bQ==",
@@ -2690,6 +2697,7 @@
     "packageJson": {
       "dependencies": [
         "npm:@eslint/eslintrc@^3",
+        "npm:@prisma/client@^6.2.1",
         "npm:@types/node@^20",
         "npm:@types/react-dom@^19",
         "npm:@types/react@^19",
